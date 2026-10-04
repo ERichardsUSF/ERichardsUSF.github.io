@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111714">
+  <title>Sideline — Find your team</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #151b18;
+      --muted: #68716c;
+      --paper: #f4f6f2;
+      --line: #dfe4dd;
+      --lime: #c5f36a;
+      --forest: #1d3529;
+      --orange: #f37448;
+      --display: "Barlow Condensed", Impact, sans-serif;
+      --body: "DM Sans", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--body); }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    .topbar { height: 70px; padding: 0 max(5vw, calc((100vw - 1320px) / 2)); display: flex; align-items: center; justify-content: space-between; background: #111714; color: #f6f8f3; }
+    .brand { display: flex; align-items: center; gap: 10px; font: 700 25px var(--display); letter-spacing: 0; text-transform: uppercase; }
+    .brand-mark { width: 27px; height: 27px; display: grid; place-items: center; background: var(--lime); color: var(--ink); font: 800 17px var(--display); transform: skew(-8deg); }
+    .nav { display: flex; align-items: center; gap: 34px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .nav a { color: #b5bdb7; transition: color .2s; }
+    .nav a:hover, .nav a[aria-current="page"] { color: var(--lime); }
+    .nav .saved-link { color: var(--lime); }
+
+    main { max-width: 1320px; margin: 0 auto; padding: 30px 5vw 74px; }
+    .feature { position: relative; height: clamp(270px, 34vw, 430px); overflow: hidden; display: flex; align-items: flex-end; background: #183129 url("https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1900&q=85") center 57% / cover; color: white; }
+    .feature::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(9, 19, 15, .88) 0%, rgba(9, 19, 15, .46) 51%, rgba(9, 19, 15, .04) 100%), linear-gradient(0deg, rgba(9, 19, 15, .35), transparent 55%); }
+    .feature-copy { position: relative; z-index: 1; padding: clamp(25px, 5vw, 62px); max-width: 680px; }
+    .eyebrow { display: flex; align-items: center; gap: 9px; color: var(--lime); font-size: 11px; font-weight: 700; letter-spacing: 0; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 20px; height: 2px; background: currentColor; }
+    h1, h2, h3, p { margin-top: 0; }
+    .feature h1 { margin: 14px 0 9px; font: 700 clamp(45px, 7.2vw, 88px)/.88 var(--display); letter-spacing: 0; text-transform: uppercase; }
+    .feature p { margin: 0; max-width: 390px; color: #e0e7e1; font-size: 13px; line-height: 1.6; }
+    .feature-label { position: absolute; z-index: 1; right: 30px; top: 28px; padding: 9px 11px; background: var(--lime); color: var(--ink); font-size: 10px; font-weight: 700; letter-spacing: 0; text-transform: uppercase; }
+
+    .directory { padding-top: 42px; }
+    .section-top { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+    .section-top .eyebrow { color: #657169; }
+    h2 { margin: 8px 0 0; font: 700 clamp(35px, 4.8vw, 56px)/.96 var(--display); text-transform: uppercase; }
+    .result-count { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .controls { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 21px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 7px; }
+    .filter { min-height: 38px; padding: 0 15px; border: 1px solid #d8ded7; background: transparent; cursor: pointer; font-size: 11px; font-weight: 700; text-transform: uppercase; transition: color .18s, background .18s, border-color .18s; }
+    .filter:hover { border-color: var(--ink); }
+    .filter[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: white; }
+    .search { position: relative; width: min(270px, 100%); }
+    .search input { width: 100%; height: 40px; padding: 0 12px 0 37px; border: 1px solid #d8ded7; border-radius: 0; outline: none; background: white; color: var(--ink); font-size: 12px; }
+    .search input:focus { border-color: #4b694f; box-shadow: 0 0 0 2px rgba(75,105,79,.13); }
+    .search svg { position: absolute; left: 12px; top: 12px; width: 16px; height: 16px; color: #78817b; pointer-events: none; }
+    .team-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+    .team-card { position: relative; min-width: 0; min-height: 172px; padding: 21px 18px 17px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(255,255,255,.52); transition: background .2s, transform .2s; }
+    .team-card:hover { z-index: 1; background: white; transform: translateY(-2px); }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .crest { width: 47px; height: 47px; display: grid; place-items: center; flex: 0 0 auto; background: var(--team-color); color: white; font: 700 18px var(--display); clip-path: polygon(0 0, 100% 0, 100% 72%, 50% 100%, 0 72%); }
+    .favorite { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid transparent; background: transparent; cursor: pointer; color: #7c857e; }
+    .favorite:hover { border-color: var(--line); color: var(--orange); }
+    .favorite[aria-pressed="true"] { color: var(--orange); }
+    .favorite svg { width: 17px; height: 17px; }
+    .team-card h3 { overflow: hidden; margin: 13px 0 3px; font: 700 23px/.98 var(--display); letter-spacing: 0; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+    .team-meta { color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
+    .empty { grid-column: 1 / -1; padding: 50px 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--muted); text-align: center; font-size: 13px; }
+    footer { display: flex; justify-content: space-between; gap: 16px; padding-top: 25px; color: #77817a; font-size: 10px; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
+
+    @media (max-width: 900px) {
+      .team-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .topbar { padding-inline: 5vw; }
+    }
+    @media (max-width: 620px) {
+      .topbar { height: 60px; }
+      .nav { gap: 17px; font-size: 10px; }
+      .nav a:nth-child(2), .nav a:nth-child(3) { display: none; }
+      main { padding-top: 18px; }
+      .feature { height: 310px; background-position: 59% center; }
+      .feature-copy { padding: 25px; }
+      .feature h1 { font-size: 58px; }
+      .feature-label { top: 15px; right: 15px; }
+      .directory { padding-top: 34px; }
+      .section-top { align-items: flex-end; }
+      .result-count { font-size: 10px; }
+      .controls { align-items: stretch; flex-direction: column; gap: 12px; }
+      .filters { gap: 6px; }
+      .filter { min-height: 35px; padding-inline: 11px; font-size: 10px; }
+      .search { width: 100%; }
+      .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .team-card { min-height: 157px; padding: 15px 13px; }
+      .team-card h3 { font-size: 20px; }
+      .crest { width: 42px; height: 42px; }
+      footer { flex-direction: column; gap: 7px; }
+    }
+    @media (max-width: 360px) {
+      .nav { gap: 11px; }
+      .team-grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="Sideline home"><span class="brand-mark" aria-hidden="true">S</span> Sideline</a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#teams" aria-current="page">Teams</a>
+      <a href="#teams" data-sport-link="Soccer">Soccer</a>
+      <a href="#teams" data-sport-link="Basketball">Basketball</a>
+      <a class="saved-link" href="#teams" id="saved-link">Saved <span id="saved-count">0</span></a>
+    </nav>
+  </header>
+
+  <main id="home">
+    <section class="feature" aria-labelledby="feature-title">
+      <span class="feature-label">Your next obsession starts here</span>
+      <div class="feature-copy">
+        <div class="eyebrow">The home of the home team</div>
+        <h1 id="feature-title">Find your<br>side.</h1>
+        <p>Big traditions. New favorites. Meet the teams worth showing up for.</p>
+      </div>
+    </section>
+
+    <section class="directory" id="teams" aria-labelledby="teams-title">
+      <div class="section-top">
+        <div>
+          <div class="eyebrow">Pick a team, make it yours</div>
+          <h2 id="teams-title">The lineup</h2>
+        </div>
+        <div class="result-count" id="result-count" aria-live="polite"></div>
+      </div>
+      <div class="controls">
+        <div class="filters" role="group" aria-label="Filter teams by sport">
+          <button class="filter" type="button" data-filter="All" aria-pressed="true">All teams</button>
+          <button class="filter" type="button" data-filter="Soccer" aria-pressed="false">Soccer</button>
+          <button class="filter" type="button" data-filter="Basketball" aria-pressed="false">Basketball</button>
+          <button class="filter" type="button" data-filter="Baseball" aria-pressed="false">Baseball</button>
+          <button class="filter" type="button" data-filter="Saved" aria-pressed="false">Saved</button>
+        </div>
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+          <input id="team-search" type="search" placeholder="Search teams or cities" aria-label="Search teams or cities">
+        </label>
+      </div>
+      <div class="team-grid" id="team-grid" aria-live="polite"></div>
+    </section>
+
+    <footer><span>Sideline · For the love of the game</span><span>Every city has a side.</span></footer>
+  </main>
+
+  <script>
+    const teams = [
+      { name: "Arsenal", city: "North London", sport: "Soccer", league: "Premier League", mark: "AFC", color: "#d82435" },
+      { name: "Golden State Warriors", city: "San Francisco", sport: "Basketball", league: "NBA", mark: "GSW", color: "#244b9b" },
+      { name: "New York Yankees", city: "The Bronx", sport: "Baseball", league: "MLB", mark: "NY", color: "#182b4b" },
+      { name: "Barcelona", city: "Barcelona, Spain", sport: "Soccer", league: "La Liga", mark: "FCB", color: "#153b78" },
+      { name: "Chicago Bulls", city: "Chicago, Illinois", sport: "Basketball", league: "NBA", mark: "CHI", color: "#c42b38" },
+      { name: "Los Angeles Dodgers", city: "Los Angeles", sport: "Baseball", league: "MLB", mark: "LA", color: "#2671b9" },
+      { name: "Liverpool", city: "Liverpool, England", sport: "Soccer", league: "Premier League", mark: "LFC", color: "#c92235" },
+      { name: "Boston Celtics", city: "Boston, Massachusetts", sport: "Basketball", league: "NBA", mark: "BOS", color: "#176b49" },
+      { name: "Seattle Mariners", city: "Seattle, Washington", sport: "Baseball", league: "MLB", mark: "SEA", color: "#155c5b" },
+      { name: "Real Madrid", city: "Madrid, Spain", sport: "Soccer", league: "La Liga", mark: "RMA", color: "#647080" },
+      { name: "New York Knicks", city: "New York City", sport: "Basketball", league: "NBA", mark: "NYK", color: "#e27132" },
+      { name: "San Diego Padres", city: "San Diego, California", sport: "Baseball", league: "MLB", mark: "SD", color: "#70512e" }
+    ];
+
+    const saved = new Set();
+    let activeFilter = "All";
+    let savedOnly = false;
+    const grid = document.querySelector("#team-grid");
+    const count = document.querySelector("#result-count");
+    const search = document.querySelector("#team-search");
+    const savedCount = document.querySelector("#saved-count");
+
+    const heartIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 8.7c0 4.2-8.8 10-8.8 10s-8.8-5.8-8.8-10A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"></path></svg>';
+
+    function renderTeams() {
+      const query = search.value.trim().toLowerCase();
+      const visible = teams.filter(team => {
+        const matchesSport = activeFilter === "All" || team.sport === activeFilter;
+        const matchesSaved = !savedOnly || saved.has(team.name);
+        const matchesSearch = `${team.name} ${team.city} ${team.league} ${team.sport}`.toLowerCase().includes(query);
+        return matchesSport && matchesSaved && matchesSearch;
+      });
+
+      count.textContent = `${visible.length} ${visible.length === 1 ? "team" : "teams"}`;
+      savedCount.textContent = saved.size;
+      if (!visible.length) {
+        grid.innerHTML = '<div class="empty">No teams found. Try another search or filter.</div>';
+        return;
+      }
+
+      grid.innerHTML = visible.map(team => `
+        <article class="team-card" style="--team-color: ${team.color}">
+          <div class="card-top">
+            <div class="crest" aria-label="${team.name} mark">${team.mark}</div>
+            <button class="favorite" type="button" data-team="${team.name}" aria-label="${saved.has(team.name) ? "Remove" : "Save"} ${team.name}" aria-pressed="${saved.has(team.name)}">${heartIcon}</button>
+          </div>
+          <h3 title="${team.name}">${team.name}</h3>
+          <div class="team-meta">${team.city} · ${team.league}</div>
+        </article>`).join("");
+    }
+
+    document.querySelector(".filters").addEventListener("click", event => {
+      const button = event.target.closest("[data-filter]");
+      if (!button) return;
+      activeFilter = button.dataset.filter === "Saved" ? "All" : button.dataset.filter;
+      savedOnly = button.dataset.filter === "Saved";
+      document.querySelectorAll("[data-filter]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+      renderTeams();
+    });
+
+    document.querySelector(".nav").addEventListener("click", event => {
+      const link = event.target.closest("[data-sport-link]");
+      if (link) {
+        event.preventDefault();
+        activeFilter = link.dataset.sportLink;
+        savedOnly = false;
+        document.querySelectorAll("[data-filter]").forEach(item => item.setAttribute("aria-pressed", String(item.dataset.filter === activeFilter)));
+        renderTeams();
+        document.querySelector("#teams").scrollIntoView({ behavior: "smooth" });
+      }
+      if (event.target.closest("#saved-link")) {
+        event.preventDefault();
+        activeFilter = "All";
+        savedOnly = true;
+        document.querySelectorAll("[data-filter]").forEach(item => item.setAttribute("aria-pressed", String(item.dataset.filter === "Saved")));
+        renderTeams();
+        document.querySelector("#teams").scrollIntoView({ behavior: "smooth" });
+      }
+    });
+
+    grid.addEventListener("click", event => {
+      const button = event.target.closest("[data-team]");
+      if (!button) return;
+      const teamName = button.dataset.team;
+      if (saved.has(teamName)) saved.delete(teamName);
+      else saved.add(teamName);
+      renderTeams();
+    });
+
+    search.addEventListener("input", renderTeams);
+    renderTeams();
+  </script>
+</body>
+</html>
