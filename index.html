@@ -181,7 +181,7 @@
       });
 
       count.textContent = `${visible.length} ${visible.length === 1 ? "team" : "teams"}`;
-      savedCount.textContent = saved.size;
+      if (savedCount) savedCount.textContent = saved.size;
       if (!visible.length) {
         grid.innerHTML = '<div class="empty">No teams found. Try another search or filter.</div>';
         return;
