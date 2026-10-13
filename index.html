@@ -123,7 +123,7 @@
     <section class="feature" aria-labelledby="feature-title">
       <span class="feature-label">Your next obsession starts here</span>
       <div class="feature-copy">
-        <div class="eyebrow">The home of the home team</div>
+        <div class="eyebrow">Where fans find their teams</div>
         <h1 id="feature-title">Find your<br>side.</h1>
         <p>Big traditions. New favorites. Meet the teams worth showing up for.</p>
       </div>
@@ -153,12 +153,14 @@
       <div class="team-grid" id="team-grid" aria-live="polite"></div>
     </section>
 
-    <footer><span>Sideline · For the love of the game</span><span>Every city has a side.</span></footer>
-  </main>
+    
+  
+  <footer class="site-footer"><span>SIDELINE · FOR THE LOVE OF THE GAME</span></footer>
+</main>
 
   <script src="teams.js"></script>
   <script>
-    const teams = getTeams();
+    const teams = (typeof getTeams === "function" ? getTeams() : []);
 
     const saved = new Set();
     let activeFilter = "All";
@@ -170,13 +172,13 @@
 
     const heartIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 8.7c0 4.2-8.8 10-8.8 10s-8.8-5.8-8.8-10A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"></path></svg>';
 
-    function escapeHTML(value) { return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+    function escapeTeamHTML(value) { return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
     function renderTeams() {
       const query = search.value.trim().toLowerCase();
       const visible = teams.filter(team => {
         const matchesSport = activeFilter === "All" || team.sport === activeFilter;
         const matchesSaved = !savedOnly || saved.has(team.name);
-        const matchesSearch = `${escapeHTML(team.name)} ${escapeHTML(team.city)} ${escapeHTML(team.league)} ${team.sport}`.toLowerCase().includes(query);
+        const matchesSearch = `${escapeTeamHTML(team.name)} ${escapeTeamHTML(team.city)} ${escapeTeamHTML(team.league)} ${team.sport}`.toLowerCase().includes(query);
         return matchesSport && matchesSaved && matchesSearch;
       });
 
@@ -190,11 +192,11 @@
       grid.innerHTML = visible.map(team => `
         <article class="team-card" style="--team-color: ${team.color}">
           <div class="card-top">
-            <div class="crest" aria-label="${escapeHTML(team.name)} mark">${escapeHTML(team.mark)}</div>
-            <button class="favorite" type="button" data-team="${escapeHTML(team.name)}" aria-label="${saved.has(team.name) ? "Remove" : "Save"} ${escapeHTML(team.name)}" aria-pressed="${saved.has(team.name)}">${heartIcon}</button>
+            <div class="crest" aria-label="${escapeTeamHTML(team.name)} mark">${escapeTeamHTML(team.mark)}</div>
+            <button class="favorite" type="button" data-team="${escapeTeamHTML(team.name)}" aria-label="${saved.has(team.name) ? "Remove" : "Save"} ${escapeTeamHTML(team.name)}" aria-pressed="${saved.has(team.name)}">${heartIcon}</button>
           </div>
-          <h3 title="${escapeHTML(team.name)}">${escapeHTML(team.name)}</h3>
-          <div class="team-meta">${escapeHTML(team.city)} · ${escapeHTML(team.league)}</div>
+          <h3 title="${escapeTeamHTML(team.name)}">${escapeTeamHTML(team.name)}</h3>
+          <div class="team-meta">${escapeTeamHTML(team.city)} · ${escapeTeamHTML(team.league)}</div>
         </article>`).join("");
     }
 
@@ -237,7 +239,10 @@
     });
 
     search.addEventListener("input", renderTeams);
-    renderTeams();
+    try { renderTeams(); } catch (error) {
+      console.error('Sideline team rendering error:', error);
+      grid.innerHTML = '<div class="empty">Unable to load teams. Please refresh.</div>';
+    }
   </script>
 </body>
 </html>
