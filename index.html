@@ -107,17 +107,16 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
+    /* Assignment navigation: show every required page on all screen sizes */
+    .topbar {height:auto; min-height:70px; flex-wrap:wrap; gap:12px; padding-top:14px; padding-bottom:14px}
+    .nav {flex-wrap:wrap; gap:clamp(10px,2vw,25px)}
+    @media(max-width:620px){.nav a:nth-child(2), .nav a:nth-child(3){display:inline}.topbar{height:auto;min-height:60px}.nav{font-size:10px;gap:13px}}
   </style>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#home" aria-label="Sideline home"><span class="brand-mark" aria-hidden="true">S</span> Sideline</a>
-    <nav class="nav" aria-label="Main navigation">
-      <a href="#teams" aria-current="page">Teams</a>
-      <a href="#teams" data-sport-link="Soccer">Soccer</a>
-      <a href="#teams" data-sport-link="Basketball">Basketball</a>
-      <a class="saved-link" href="#teams" id="saved-link">Saved <span id="saved-count">0</span></a>
-    </nav>
+    <a class="brand" href="index.html" aria-label="Sideline home"><span class="brand-mark" aria-hidden="true">S</span> Sideline</a>
+    <nav class="nav" aria-label="Main navigation"><a href="index.html" aria-current="page">Teams</a><a href="manage.html">Manage Teams</a><a href="analytics.html">Analytics</a><a href="aboutus.html">About Us</a></nav>
   </header>
 
   <main id="home">
@@ -157,21 +156,9 @@
     <footer><span>Sideline · For the love of the game</span><span>Every city has a side.</span></footer>
   </main>
 
+  <script src="teams.js"></script>
   <script>
-    const teams = [
-      { name: "Arsenal", city: "North London", sport: "Soccer", league: "Premier League", mark: "AFC", color: "#d82435" },
-      { name: "Golden State Warriors", city: "San Francisco", sport: "Basketball", league: "NBA", mark: "GSW", color: "#244b9b" },
-      { name: "New York Yankees", city: "The Bronx", sport: "Baseball", league: "MLB", mark: "NY", color: "#182b4b" },
-      { name: "Barcelona", city: "Barcelona, Spain", sport: "Soccer", league: "La Liga", mark: "FCB", color: "#153b78" },
-      { name: "Chicago Bulls", city: "Chicago, Illinois", sport: "Basketball", league: "NBA", mark: "CHI", color: "#c42b38" },
-      { name: "Los Angeles Dodgers", city: "Los Angeles", sport: "Baseball", league: "MLB", mark: "LA", color: "#2671b9" },
-      { name: "Liverpool", city: "Liverpool, England", sport: "Soccer", league: "Premier League", mark: "LFC", color: "#c92235" },
-      { name: "Boston Celtics", city: "Boston, Massachusetts", sport: "Basketball", league: "NBA", mark: "BOS", color: "#176b49" },
-      { name: "Seattle Mariners", city: "Seattle, Washington", sport: "Baseball", league: "MLB", mark: "SEA", color: "#155c5b" },
-      { name: "Real Madrid", city: "Madrid, Spain", sport: "Soccer", league: "La Liga", mark: "RMA", color: "#647080" },
-      { name: "New York Knicks", city: "New York City", sport: "Basketball", league: "NBA", mark: "NYK", color: "#e27132" },
-      { name: "San Diego Padres", city: "San Diego, California", sport: "Baseball", league: "MLB", mark: "SD", color: "#70512e" }
-    ];
+    const teams = getTeams();
 
     const saved = new Set();
     let activeFilter = "All";
@@ -183,12 +170,13 @@
 
     const heartIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 8.7c0 4.2-8.8 10-8.8 10s-8.8-5.8-8.8-10A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"></path></svg>';
 
+    function escapeHTML(value) { return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
     function renderTeams() {
       const query = search.value.trim().toLowerCase();
       const visible = teams.filter(team => {
         const matchesSport = activeFilter === "All" || team.sport === activeFilter;
         const matchesSaved = !savedOnly || saved.has(team.name);
-        const matchesSearch = `${team.name} ${team.city} ${team.league} ${team.sport}`.toLowerCase().includes(query);
+        const matchesSearch = `${escapeHTML(team.name)} ${escapeHTML(team.city)} ${escapeHTML(team.league)} ${team.sport}`.toLowerCase().includes(query);
         return matchesSport && matchesSaved && matchesSearch;
       });
 
@@ -202,11 +190,11 @@
       grid.innerHTML = visible.map(team => `
         <article class="team-card" style="--team-color: ${team.color}">
           <div class="card-top">
-            <div class="crest" aria-label="${team.name} mark">${team.mark}</div>
-            <button class="favorite" type="button" data-team="${team.name}" aria-label="${saved.has(team.name) ? "Remove" : "Save"} ${team.name}" aria-pressed="${saved.has(team.name)}">${heartIcon}</button>
+            <div class="crest" aria-label="${escapeHTML(team.name)} mark">${escapeHTML(team.mark)}</div>
+            <button class="favorite" type="button" data-team="${escapeHTML(team.name)}" aria-label="${saved.has(team.name) ? "Remove" : "Save"} ${escapeHTML(team.name)}" aria-pressed="${saved.has(team.name)}">${heartIcon}</button>
           </div>
-          <h3 title="${team.name}">${team.name}</h3>
-          <div class="team-meta">${team.city} · ${team.league}</div>
+          <h3 title="${escapeHTML(team.name)}">${escapeHTML(team.name)}</h3>
+          <div class="team-meta">${escapeHTML(team.city)} · ${escapeHTML(team.league)}</div>
         </article>`).join("");
     }
 
